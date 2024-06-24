@@ -1,27 +1,30 @@
 <!DOCTYPE html>
 <html>
-  <head>
-    <title>PDF Text Extractor</title>
-  </head>
-  <body>
-    <h1>PDF Text Extractor</h1>
-    <form id="pdf-form" enctype="multipart/form-data">
-      <input type="file" id="pdf-file" name="pdf" required>
-      <label for="page-number">Page Number:</label>
-      <input type="number" id="page-number" name="pageNumber" required min="1">
-      <button type="submit">Extract Text</button>
-    </form>
+<head>
+  <title>PDF Text Extractor</title>
+  <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+</head>
+<body>
+  <h1>PDF Text Extractor</h1>
+  <form id="pdf-form" enctype="multipart/form-data">
+    <input type="file" id="pdf-file" name="pdf" required>
+    <label for="page-number">Page Number:</label>
+    <input type="number" id="page-number" name="pageNumber" value="1" required min="1">
+    <button type="submit">Extract Text</button>
+  </form>
+  <div id="result"></div>
 
-    <div id="result"></div>
-
-    <script>
-      document.getElementById('pdf-form').addEventListener('submit', async (e) => {
-        e.preventDefault();
-        const formData = new FormData(document.getElementById('pdf-form'));
+  <script>
+    document.getElementById('pdf-form').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const formData = new FormData(document.getElementById('pdf-form'));
+      try {
         const response = await axios.post('/extract-text', formData);
-        const text = response.data;
-        document.getElementById('result').innerText = text;
-      });
-    </script>
-  </body>
+        document.getElementById('result').innerText = response.data;
+      } catch (error) {
+        document.getElementById('result').innerText = `Error: ${error.response ? error.response.data : error.message}`;
+      }
+    });
+  </script>
+</body>
 </html>
