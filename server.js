@@ -9,7 +9,7 @@ const upload = multer({ dest: './uploads/' });
 
 app.post('/extract-text', upload.single('pdf'), (req, res) => {
   const pdfPath = path.resolve(req.file.path);
-  let pageNumber = parseInt(req.body.pageNumber) ;
+  let pageNumber = parseInt(req.body.pageNumber);
 
   fs.readFile(pdfPath, (err, pdfBuffer) => {
     if (err) {
@@ -18,12 +18,14 @@ app.post('/extract-text', upload.single('pdf'), (req, res) => {
 
     pdfParse(pdfBuffer).then(data => {
       const numPages = data.numpages;
-      if (pageNumber < 0 || pageNumber > numPages) {
+      if (pageNumber < 1 || pageNumber > numPages) {
         return res.status(400).send(`Invalid page number. The PDF has ${numPages} pages.`);
       }
 
-      const pageText = data.text.split('\n\n').slice(pageNumber, pageNumber + 1).join('\n\n');
-      res.send(`Extracted text from page ${pageNumber}:\n\n ${pageText}`);
+      const pages = data.text.split('\f');
+      const pageText = pages[pageNumber - 1] || `No text found on page ${pageNumber}.`;
+
+      res.send(`Extracted text from page ${pageNumber}:\n\n${pageText}`);
     }).catch(err => {
       res.status(500).send(`Error extracting text: ${err}`);
     });
